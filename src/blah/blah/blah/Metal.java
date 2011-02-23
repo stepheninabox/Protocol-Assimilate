@@ -72,12 +72,12 @@ public class Metal implements IUpdateHandler{
 		for (i=0; i<bodies.length; ++i){
 			mPos[i] = bodies[i].getWorldCenter();
 			x = botPos.x - mPos[i].x;
-			//y = botPos.y - mPos[i].y;
-			//len = (float)Math.sqrt(x*x + y*y);
-			//genVec.x = x/len*2;
-			//genVec.y = y/len*2;
+			y = botPos.y - mPos[i].y;
+			len = (float)Math.sqrt(x*x + y*y);
+			genVec.x = x/len*2;
+			genVec.y = y/len*2;
 		
-			//bodies[i].applyForce(genVec, mPos[i]);
+			bodies[i].applyForce(genVec, mPos[i]);
 		}
 	}
 

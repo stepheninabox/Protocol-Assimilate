@@ -25,12 +25,7 @@ public class Bot implements IUpdateHandler{
 	Sprite sprite;
 	Body body;
 	
-	Vector2 botPos;
-	
-	public Bot(){
-		
-		
-	}
+	Vector2 botPos = new Vector2(0, 0);
 	
 	public void onLoadResources(Context mContext, TextureManager mTextureManager){
 		TextureRegionFactory.setAssetBasePath("gfx/");

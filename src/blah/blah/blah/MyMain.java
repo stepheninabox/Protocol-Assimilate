@@ -49,6 +49,7 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
     //	===========================================================
     
     private Camera mCamera;
+    
     Bot mBot = new Bot();
     Metal mMetal = new Metal(mBot.botPos);
    
@@ -151,11 +152,9 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
 		scene.getBottomLayer().addEntity(left);
 		scene.getBottomLayer().addEntity(right);
 		
-		this.mMetal.addMetal(scene, mPhysicsWorld, 300, 100);
-		this.mMetal.addMetal(scene, mPhysicsWorld, 450, 100);
+		mBot.onLoadScene(scene, mPhysicsWorld);
+		mMetal.onLoadScene(scene, mPhysicsWorld);
 		
-		
-		this.mBot.addBot(scene, mPhysicsWorld, 200, 200);
 		
 		AnalogOnScreenControl analogOnScreenControlRight = new AnalogOnScreenControl(560, (this.mPlaceOnScreenControlsAtDifferentVerticalLocations) ? 0 : 
 					CAMERA_HEIGHT - this.mOnScreenControlBaseTextureRegion.getHeight(), this.mCamera, this.mOnScreenControlBaseTextureRegion,

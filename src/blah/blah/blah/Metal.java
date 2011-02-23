@@ -16,23 +16,30 @@ import android.content.Context;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
 
 public class Metal implements IUpdateHandler{
-	
 	Texture mMetalTexture;
 	TextureRegion mMetalTextureRegion;
-	FixtureDef FIXTURE_DEF = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+	Sprite sprite;
 	Body body;
-	float len, x, y;
-	Vector2 botPos;
-	Vector2 mPos;
-	Vector2 genVec = new Vector2(0, 0);
 	
+	Vector2 genVec = new Vector2(0, 0);
+	Vector2 botPos;
+	
+	Body bodies[];
+	Vector2 mPos[];
+	Sprite sprites[];
+	
+	final int numMetal = 1;
 	
 	public Metal(Vector2 botPos){
 		this.botPos = botPos;
+		
+		this.bodies = new Body[numMetal];
+		this.mPos = new Vector2[numMetal];
+		this.sprites = new Sprite[numMetal];
 	}
 
 	public void onLoadResources(Context mContext, TextureManager mTextureManager){
@@ -44,38 +51,39 @@ public class Metal implements IUpdateHandler{
     	mTextureManager.loadTexture(this.mMetalTexture);
 	}
 	
-	public void addMetal(Scene scene, PhysicsWorld physicsWorld, final float pX, final float pY){
-		final Sprite metal;
+	int i;
+	public void onLoadScene(Scene scene, PhysicsWorld mPhysicsWorld){
+		FixtureDef fixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+		fixtureDef.restitution = 0.7f;
 		
-		metal = new Sprite(pX, pY, this.mMetalTextureRegion);
-		body = PhysicsFactory.createCircleBody(physicsWorld, metal, BodyType.DynamicBody, FIXTURE_DEF);
-		
-		metal.setUpdatePhysics(false);
-		scene.getTopLayer().addEntity(metal);
-		physicsWorld.registerPhysicsConnector(new PhysicsConnector(metal, body, true, true, false, false));
+		for (i=0; i<this.bodies.length; ++i) {
+			this.sprites[i] = new Sprite(20, 20, this.mMetalTextureRegion);
+			
+			this.bodies[i] = PhysicsFactory.createBoxBody(mPhysicsWorld, this.sprites[i], BodyType.DynamicBody, fixtureDef);
+			
+			this.sprites[i].setUpdatePhysics(false);
+			scene.getTopLayer().addEntity(this.sprites[i]);
+			mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(this.sprites[i],this.bodies[i], true ,true ,false ,false));
+		}
 	}
 
-	@Override
-	public void onUpdate(float pSecondsElapsed) {
-		mPos = body.getWorldCenter();
-		x = this.botPos.x - this.mPos.x;
-		y = this.botPos.y - this.mPos.y;
-		len = (float)Math.sqrt(x*x + y*y);
-		genVec.x = x/len*2;
-		genVec.y = y/len*2;
+	float len, x, y;
+	public void onUpdate(float dt) {
+		for (i=0; i<bodies.length; ++i){
+			mPos[i] = bodies[i].getWorldCenter();
+			x = botPos.x - mPos[i].x;
+			//y = botPos.y - mPos[i].y;
+			//len = (float)Math.sqrt(x*x + y*y);
+			//genVec.x = x/len*2;
+			//genVec.y = y/len*2;
 		
-		body.setLinearVelocity(genVec);
-		
-		
-		
+			//bodies[i].applyForce(genVec, mPos[i]);
+		}
 	}
 
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		
 	}
-	
-	
 		
 }

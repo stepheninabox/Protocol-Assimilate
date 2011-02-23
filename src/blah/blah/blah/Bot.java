@@ -20,42 +20,46 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 
 public class Bot implements IUpdateHandler{
-	
-	//constants
-	
-	Texture mBoxTexture;
-	TextureRegion mBoxTextureRegion;
-	FixtureDef FIXTURE_DEF = PhysicsFactory.createFixtureDef(0, 0f, 0f);
+	Texture mBotTexture;
+	TextureRegion mBotTextureRegion;
+	Sprite sprite;
 	Body body;
-	public Vector2 botPos = new Vector2(0, 0);
+	
+	Vector2 botPos;
+	
+	public Bot(){
+		
+		
+	}
 	
 	public void onLoadResources(Context mContext, TextureManager mTextureManager){
 		TextureRegionFactory.setAssetBasePath("gfx/");
 	
-		this.mBoxTexture = new Texture(32, 32, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-    	this.mBoxTextureRegion = TextureRegionFactory.createFromAsset(this.mBoxTexture, mContext, "sphere.png", 0, 0);
+		this.mBotTexture = new Texture(32, 32, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+    	this.mBotTextureRegion = TextureRegionFactory.createFromAsset(this.mBotTexture, mContext, "sphere.png", 0, 0);
     	
-    	mTextureManager.loadTexture(this.mBoxTexture);
+    	mTextureManager.loadTexture(this.mBotTexture);
     	
 	}
 	
-	public void addBot(Scene scene, PhysicsWorld physicsWorld, final float pX, final float pY){
-			final Sprite bot;
+	int i;
+	public void onLoadScene(Scene scene, PhysicsWorld physicsWorld){
+		FixtureDef fixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+		fixtureDef.restitution = 0.7f;
 			
-			bot = new Sprite(pX, pY, this.mBoxTextureRegion);
-			body = PhysicsFactory.createCircleBody(physicsWorld, bot, BodyType.DynamicBody, FIXTURE_DEF);
-			botPos = new Vector2(pX,pY);
+			this.sprite = new Sprite(100, 100, this.mBotTextureRegion);
+			body = PhysicsFactory.createCircleBody(physicsWorld, this.sprite, BodyType.DynamicBody, fixtureDef);
 			
-			bot.setUpdatePhysics(false);
-			scene.getTopLayer().addEntity(bot);
-			physicsWorld.registerPhysicsConnector(new PhysicsConnector(bot, body, true, true, false, false));
+			this.sprite.setUpdatePhysics(false);
+			scene.getTopLayer().addEntity(this.sprite);
+			physicsWorld.registerPhysicsConnector(new PhysicsConnector(this.sprite, body, true, true, false, false));
 			
 	}
 	
 
 	@Override
-	public void onUpdate(float pSecondsElapsed) {
-		this.botPos = body.getWorldCenter();
+	public void onUpdate(float dt) {
+		botPos = body.getWorldCenter();
 	}
 
 	@Override

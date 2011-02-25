@@ -18,6 +18,7 @@ import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.extension.input.touch.controller.MultiTouch;
 import org.anddev.andengine.extension.input.touch.controller.MultiTouchController;
 import org.anddev.andengine.extension.input.touch.controller.MultiTouchException;
+import org.anddev.andengine.extension.physics.box2d.PhysicsConnector;
 import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
 import org.anddev.andengine.extension.physics.box2d.PhysicsWorld;
 import org.anddev.andengine.opengl.texture.Texture;
@@ -226,10 +227,11 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
         scene.setChildScene(analogOnScreenControlLeft);
         
         analogOnScreenControlLeft.setChildScene(analogOnScreenControlRight);
-		
-		scene.registerUpdateHandler(this.mPhysicsWorld);
+        
 		scene.registerUpdateHandler(mBot);
+		mMetal.botPos = mBot.botPos;
 		scene.registerUpdateHandler(mMetal);
+		scene.registerUpdateHandler(this.mPhysicsWorld);
 		
 		
 		return scene;
@@ -243,6 +245,20 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
 	public void onAccelerometerChanged(final AccelerometerData pAccelerometerData) {
 		this.mPhysicsWorld.setGravity(new Vector2(pAccelerometerData.getY(), pAccelerometerData.getX()));
 	}
+    
+    //new removal code for collision
+    
+    void removeMetal(Shape mMetal){
+    	final Scene scene = this.mEngine.getScene();
+    	
+    	final PhysicsConnector mMetalPhysicsConnector = this.mPhysicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(mMetal);
+    	
+    	this.mPhysicsWorld.unregisterPhysicsConnector(mMetalPhysicsConnector);
+		this.mPhysicsWorld.destroyBody(mMetalPhysicsConnector.getBody());
+		
+		scene.getTopLayer().removeEntity(mMetal);
+    }
+    
     
     //	==============================================================
     //	Methods

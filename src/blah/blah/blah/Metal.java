@@ -1,5 +1,7 @@
 package blah.blah.blah;
 
+import java.util.Random;
+
 import org.anddev.andengine.engine.handler.IUpdateHandler;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.sprite.Sprite;
@@ -32,7 +34,9 @@ public class Metal implements IUpdateHandler{
 	Vector2 mPos[];
 	Sprite sprites[];
 	
-	final int numMetal = 1;
+	Boolean delMetal[];
+	
+	final int numMetal = 5;
 	
 	public Metal(Vector2 botPos){
 		this.botPos = botPos;
@@ -40,6 +44,8 @@ public class Metal implements IUpdateHandler{
 		this.bodies = new Body[numMetal];
 		this.mPos = new Vector2[numMetal];
 		this.sprites = new Sprite[numMetal];
+		this.delMetal = new Boolean[numMetal];
+		
 	}
 
 	public void onLoadResources(Context mContext, TextureManager mTextureManager){
@@ -53,17 +59,20 @@ public class Metal implements IUpdateHandler{
 	
 	int i;
 	public void onLoadScene(Scene scene, PhysicsWorld mPhysicsWorld){
-		FixtureDef fixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+		FixtureDef fixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.3f);
 		fixtureDef.restitution = 0.7f;
+		Random r = new Random();
 		
 		for (i=0; i<this.bodies.length; ++i) {
-			this.sprites[i] = new Sprite(20, 20, this.mMetalTextureRegion);
+			this.sprites[i] = new Sprite(r.nextInt(700), r.nextInt(460), this.mMetalTextureRegion);
 			
 			this.bodies[i] = PhysicsFactory.createBoxBody(mPhysicsWorld, this.sprites[i], BodyType.DynamicBody, fixtureDef);
 			
 			this.sprites[i].setUpdatePhysics(false);
 			scene.getTopLayer().addEntity(this.sprites[i]);
 			mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(this.sprites[i],this.bodies[i], true ,true ,false ,false));
+			
+			this.delMetal[i] = false;
 		}
 	}
 
@@ -74,8 +83,8 @@ public class Metal implements IUpdateHandler{
 			x = botPos.x - mPos[i].x;
 			y = botPos.y - mPos[i].y;
 			len = (float)Math.sqrt(x*x + y*y);
-			genVec.x = x/len*2;
-			genVec.y = y/len*2;
+			genVec.x = x/len*4;
+			genVec.y = y/len*4;
 		
 			bodies[i].applyForce(genVec, mPos[i]);
 		}

@@ -25,7 +25,7 @@ public class Bot implements IUpdateHandler{
 	Sprite sprite;
 	Body body;
 	
-	Vector2 botPos = new Vector2(0, 0);
+	Vector2 botPos;
 	
 	public void onLoadResources(Context mContext, TextureManager mTextureManager){
 		TextureRegionFactory.setAssetBasePath("gfx/");
@@ -49,12 +49,14 @@ public class Bot implements IUpdateHandler{
 			scene.getTopLayer().addEntity(this.sprite);
 			physicsWorld.registerPhysicsConnector(new PhysicsConnector(this.sprite, body, true, true, false, false));
 			
+			this.botPos = body.getWorldCenter();
+			
 	}
 	
 
 	@Override
 	public void onUpdate(float dt) {
-		botPos = body.getWorldCenter();
+		this.botPos = this.body.getWorldCenter();
 	}
 
 	@Override

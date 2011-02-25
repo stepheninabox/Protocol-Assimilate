@@ -34,7 +34,8 @@ public class Metal implements IUpdateHandler{
 	Vector2 mPos[];
 	Sprite sprites[];
 	
-	Boolean delMetal[];
+	boolean delMetal[];
+	boolean gravMetal[];
 	
 	final int numMetal = 5;
 	
@@ -44,7 +45,9 @@ public class Metal implements IUpdateHandler{
 		this.bodies = new Body[numMetal];
 		this.mPos = new Vector2[numMetal];
 		this.sprites = new Sprite[numMetal];
-		this.delMetal = new Boolean[numMetal];
+		this.delMetal = new boolean[numMetal];
+		this.gravMetal = new boolean[numMetal];
+		
 		
 	}
 
@@ -59,7 +62,7 @@ public class Metal implements IUpdateHandler{
 	
 	int i;
 	public void onLoadScene(Scene scene, PhysicsWorld mPhysicsWorld){
-		FixtureDef fixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.3f);
+		FixtureDef fixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
 		fixtureDef.restitution = 0.7f;
 		Random r = new Random();
 		
@@ -73,6 +76,7 @@ public class Metal implements IUpdateHandler{
 			mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(this.sprites[i],this.bodies[i], true ,true ,false ,false));
 			
 			this.delMetal[i] = false;
+			this.gravMetal[i] = false;
 		}
 	}
 
@@ -83,10 +87,13 @@ public class Metal implements IUpdateHandler{
 			x = botPos.x - mPos[i].x;
 			y = botPos.y - mPos[i].y;
 			len = (float)Math.sqrt(x*x + y*y);
-			genVec.x = x/len*4;
-			genVec.y = y/len*4;
-		
-			bodies[i].applyForce(genVec, mPos[i]);
+			genVec.x = x/len*10;
+			genVec.y = y/len*10;
+			
+			if (this.len <= 4 | this.gravMetal[i] == true) {
+				bodies[i].applyForce(genVec, mPos[i]);
+				gravMetal[i] = true;
+			}
 		}
 	}
 

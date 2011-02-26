@@ -13,12 +13,13 @@ import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolic
 import org.anddev.andengine.entity.primitive.Rectangle;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.background.ColorBackground;
+import org.anddev.andengine.entity.scene.background.SpriteBackground;
 import org.anddev.andengine.entity.shape.Shape;
+import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.extension.input.touch.controller.MultiTouch;
 import org.anddev.andengine.extension.input.touch.controller.MultiTouchController;
 import org.anddev.andengine.extension.input.touch.controller.MultiTouchException;
-import org.anddev.andengine.extension.physics.box2d.PhysicsConnector;
 import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
 import org.anddev.andengine.extension.physics.box2d.PhysicsWorld;
 import org.anddev.andengine.opengl.texture.Texture;
@@ -33,7 +34,10 @@ import org.anddev.andengine.ui.activity.BaseGameActivity;
 import android.widget.Toast;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 
 public class MyMain extends BaseGameActivity implements IAccelerometerListener{
@@ -58,6 +62,9 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
     private Texture mOnScreenControlTexture;
     private TextureRegion mOnScreenControlBaseTextureRegion;
     private TextureRegion mOnScreenControlKnobTextureRegion;
+    
+    private Texture mLevelBackground;
+    private TextureRegion mLevelBackgroundTextureRegion;
     
     private boolean mPlaceOnScreenControlsAtDifferentVerticalLocations = false;
     
@@ -121,7 +128,11 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
     	this.mOnScreenControlKnobTextureRegion = 
     		TextureRegionFactory.createFromAsset(this.mOnScreenControlTexture, this, "onscreen_control_knob.png", 128, 0);
     	
-    	mTextureManager.loadTexture(this.mOnScreenControlTexture);
+    	this.mLevelBackground = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+    	this.mLevelBackgroundTextureRegion = 
+    		TextureRegionFactory.createFromAsset(this.mLevelBackground , this, "lavaLevel.png",0,0);
+    	
+    	mTextureManager.loadTextures(this.mOnScreenControlTexture, this.mLevelBackground);
     	mBot.onLoadResources(this, mTextureManager);
     	mMetal.onLoadResources(this, mTextureManager);
     	//this.mEngine.getTextureManager().loadTextures(this.mBoxTexture);
@@ -132,9 +143,11 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
     @Override
 	public Scene onLoadScene() {
     	this.mEngine.registerUpdateHandler(new FPSLogger());
+    	
+    	Sprite lavaLevel = new Sprite(0, 0, 720, 480, mLevelBackgroundTextureRegion);
 
 		final Scene scene = new Scene(2);
-		scene.setBackground(new ColorBackground(0, 0, 0));
+		scene.setBackground(new SpriteBackground(lavaLevel));
 		
 		this.mPhysicsWorld = new PhysicsWorld(new Vector2(0, 0), false);
 		final Shape ground = new Rectangle(0, CAMERA_HEIGHT - 2, CAMERA_WIDTH, 2);
@@ -228,11 +241,25 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
         
         analogOnScreenControlLeft.setChildScene(analogOnScreenControlRight);
         
+        this.mPhysicsWorld.setContactListener( new ContactListener(){
+			@Override
+			public void beginContact(final Contact pContact){
+
+			}
+			
+			@Override
+			public void endContact(final Contact pContact){
+				
+			}
+				
+		});
+        
+        
+        
 		scene.registerUpdateHandler(mBot);
 		mMetal.botPos = mBot.botPos;
 		scene.registerUpdateHandler(mMetal);
 		scene.registerUpdateHandler(this.mPhysicsWorld);
-		
 		
 		return scene;
     }
@@ -247,17 +274,6 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
 	}
     
     //new removal code for collision
-    
-    void removeMetal(Shape mMetal){
-    	final Scene scene = this.mEngine.getScene();
-    	
-    	final PhysicsConnector mMetalPhysicsConnector = this.mPhysicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(mMetal);
-    	
-    	this.mPhysicsWorld.unregisterPhysicsConnector(mMetalPhysicsConnector);
-		this.mPhysicsWorld.destroyBody(mMetalPhysicsConnector.getBody());
-		
-		scene.getTopLayer().removeEntity(mMetal);
-    }
     
     
     //	==============================================================

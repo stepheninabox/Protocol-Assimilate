@@ -4,6 +4,7 @@ import java.util.Random;
 
 import org.anddev.andengine.engine.handler.IUpdateHandler;
 import org.anddev.andengine.entity.scene.Scene;
+import org.anddev.andengine.entity.shape.Shape;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.extension.physics.box2d.PhysicsConnector;
 import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
@@ -34,7 +35,6 @@ public class Metal implements IUpdateHandler{
 	Vector2 mPos[];
 	Sprite sprites[];
 	
-	boolean delMetal[];
 	boolean gravMetal[];
 	
 	final int numMetal = 5;
@@ -45,7 +45,6 @@ public class Metal implements IUpdateHandler{
 		this.bodies = new Body[numMetal];
 		this.mPos = new Vector2[numMetal];
 		this.sprites = new Sprite[numMetal];
-		this.delMetal = new boolean[numMetal];
 		this.gravMetal = new boolean[numMetal];
 		
 		
@@ -75,7 +74,6 @@ public class Metal implements IUpdateHandler{
 			scene.getTopLayer().addEntity(this.sprites[i]);
 			mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(this.sprites[i],this.bodies[i], true ,true ,false ,false));
 			
-			this.delMetal[i] = false;
 			this.gravMetal[i] = false;
 		}
 	}
@@ -94,12 +92,26 @@ public class Metal implements IUpdateHandler{
 				bodies[i].applyForce(genVec, mPos[i]);
 				gravMetal[i] = true;
 			}
+
 		}
 	}
+	
+	
 
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
 	}
+	
+	//void removeMetal(Shape mMetal){
+    	//final Scene scene = this.mEngine.getScene();
+    	
+    	//final PhysicsConnector mMetalPhysicsConnector = this.mPhysicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(mMetal);
+    	
+    	//this.mPhysicsWorld.unregisterPhysicsConnector(mMetalPhysicsConnector);
+		//this.mPhysicsWorld.destroyBody(mMetalPhysicsConnector.getBody());
+		
+		//scene.getTopLayer().removeEntity(mMetal);
+    //}
 		
 }

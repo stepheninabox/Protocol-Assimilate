@@ -44,6 +44,7 @@ public class Bot implements IUpdateHandler{
 			
 			this.sprite = new Sprite(100, 100, this.mBotTextureRegion);
 			body = PhysicsFactory.createCircleBody(physicsWorld, this.sprite, BodyType.DynamicBody, fixtureDef);
+			this.body.setUserData(new UserData(i, "pBot"));
 			
 			this.sprite.setUpdatePhysics(false);
 			scene.getTopLayer().addEntity(this.sprite);

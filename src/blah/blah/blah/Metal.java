@@ -4,7 +4,6 @@ import java.util.Random;
 
 import org.anddev.andengine.engine.handler.IUpdateHandler;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.shape.Shape;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.extension.physics.box2d.PhysicsConnector;
 import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
@@ -35,7 +34,11 @@ public class Metal implements IUpdateHandler{
 	Vector2 mPos[];
 	Sprite sprites[];
 	
-	boolean gravMetal[];
+	Boolean isActive[];
+	
+	Boolean gravMetal[];
+	
+	Boolean dMetal[];
 	
 	final int numMetal = 5;
 	
@@ -45,8 +48,9 @@ public class Metal implements IUpdateHandler{
 		this.bodies = new Body[numMetal];
 		this.mPos = new Vector2[numMetal];
 		this.sprites = new Sprite[numMetal];
-		this.gravMetal = new boolean[numMetal];
-		
+		this.gravMetal = new Boolean[numMetal];
+		this.isActive = new Boolean[numMetal];
+		this.dMetal = new Boolean[numMetal];
 		
 	}
 
@@ -69,15 +73,17 @@ public class Metal implements IUpdateHandler{
 			this.sprites[i] = new Sprite(r.nextInt(700), r.nextInt(460), this.mMetalTextureRegion);
 			
 			this.bodies[i] = PhysicsFactory.createBoxBody(mPhysicsWorld, this.sprites[i], BodyType.DynamicBody, fixtureDef);
+			this.bodies[i].setUserData(new UserData(i, "pMetal"));
 			
 			this.sprites[i].setUpdatePhysics(false);
 			scene.getTopLayer().addEntity(this.sprites[i]);
 			mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(this.sprites[i],this.bodies[i], true ,true ,false ,false));
 			
 			this.gravMetal[i] = false;
+			this.dMetal[i] = false;
 		}
 	}
-
+	
 	float len, x, y;
 	public void onUpdate(float dt) {
 		for (i=0; i<bodies.length; ++i){
@@ -88,7 +94,7 @@ public class Metal implements IUpdateHandler{
 			genVec.x = x/len*10;
 			genVec.y = y/len*10;
 			
-			if (this.len <= 4 | this.gravMetal[i] == true) {
+			if (this.len <= 4 | this.gravMetal[i] == true){
 				bodies[i].applyForce(genVec, mPos[i]);
 				gravMetal[i] = true;
 			}

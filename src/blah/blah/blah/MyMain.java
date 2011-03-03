@@ -3,7 +3,7 @@ package blah.blah.blah;
 import javax.microedition.khronos.opengles.GL10;
 
 import org.anddev.andengine.engine.Engine;
-import org.anddev.andengine.engine.camera.Camera;
+import org.anddev.andengine.engine.camera.BoundCamera;
 import org.anddev.andengine.engine.camera.hud.controls.AnalogOnScreenControl;
 import org.anddev.andengine.engine.camera.hud.controls.AnalogOnScreenControl.IAnalogOnScreenControlListener;
 import org.anddev.andengine.engine.camera.hud.controls.BaseOnScreenControl;
@@ -12,7 +12,6 @@ import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.anddev.andengine.entity.primitive.Rectangle;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.scene.background.ColorBackground;
 import org.anddev.andengine.entity.scene.background.SpriteBackground;
 import org.anddev.andengine.entity.shape.Shape;
 import org.anddev.andengine.entity.sprite.Sprite;
@@ -34,7 +33,6 @@ import org.anddev.andengine.ui.activity.BaseGameActivity;
 import android.widget.Toast;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -53,7 +51,7 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
     //	Fields
     //	===========================================================
     
-    private Camera mCamera;
+    private BoundCamera mCamera;
     
     Bot mBot = new Bot();
     Metal mMetal = new Metal(mBot.botPos);
@@ -86,7 +84,7 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
     
     @Override
 	public Engine onLoadEngine() {
-    	this.mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+    	this.mCamera = new BoundCamera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT, 0, 1024, 0, 1024);
     	Engine engine = new Engine(new EngineOptions(true, ScreenOrientation.LANDSCAPE,new
     			RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), this.mCamera));
     	
@@ -142,18 +140,20 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
     
     @Override
 	public Scene onLoadScene() {
+    	int xL = 1024;
+    	int yL = 1024;
     	this.mEngine.registerUpdateHandler(new FPSLogger());
     	
-    	Sprite lavaLevel = new Sprite(0, 0, 720, 480, mLevelBackgroundTextureRegion);
+    	Sprite lavaLevel = new Sprite(0, 0, xL, yL, mLevelBackgroundTextureRegion);
 
-		final Scene scene = new Scene(2);
-		scene.setBackground(new SpriteBackground(lavaLevel));
+		final Scene scene = new Scene(3);
+		scene.getBottomLayer().addEntity(lavaLevel);
 		
 		this.mPhysicsWorld = new PhysicsWorld(new Vector2(0, 0), false);
-		final Shape ground = new Rectangle(0, CAMERA_HEIGHT - 2, CAMERA_WIDTH, 2);
-		final Shape roof = new Rectangle(0, 0, CAMERA_WIDTH, 2);
-		final Shape left = new Rectangle(0, 0, 2, CAMERA_HEIGHT);
-		final Shape right = new Rectangle(CAMERA_WIDTH - 2, 0, 2, CAMERA_HEIGHT);
+		final Shape ground = new Rectangle(0, yL - 2, xL, 2);
+		final Shape roof = new Rectangle(0, 0, xL, 2);
+		final Shape left = new Rectangle(0, 0, 2, yL);
+		final Shape right = new Rectangle(xL - 2, 0, 2, yL);
     	
 		final FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
 		PhysicsFactory.createBoxBody(this.mPhysicsWorld, ground, BodyType.StaticBody, wallFixtureDef);
@@ -244,6 +244,9 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
         this.mPhysicsWorld.setContactListener( new ContactListener(){
 			@Override
 			public void beginContact(final Contact pContact){
+				{
+					
+				}
 
 			}
 			
@@ -259,6 +262,8 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
 		scene.registerUpdateHandler(mBot);
 		mMetal.botPos = mBot.botPos;
 		scene.registerUpdateHandler(mMetal);
+		this.mCamera.setBoundsEnabled(true);
+		this.mCamera.setChaseShape(mBot.sprite);
 		scene.registerUpdateHandler(this.mPhysicsWorld);
 		
 		return scene;
@@ -273,6 +278,18 @@ public class MyMain extends BaseGameActivity implements IAccelerometerListener{
 		this.mPhysicsWorld.setGravity(new Vector2(pAccelerometerData.getY(), pAccelerometerData.getX()));
 	}
     
+   // public void delMetal (Body BodyA, Body BodyB){
+    	//if (BodyA.getUserData() == "pMetal" &&
+    		//	BodyB.getUserData() == "pBot"){
+    		
+    	//}
+    	
+    	//if (BodyB.getUserData() == "pMetal" &&
+    		//	BodyA.getUserData() == "pBot"){
+    	//	BodyB.setUserData(new UserData("pMetal"));
+    	//}
+    		
+   // }
     //new removal code for collision
     
     
